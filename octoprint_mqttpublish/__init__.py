@@ -15,8 +15,7 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			topic = "topic",
-			publishcommand = "publishcommand"
+			topics = [dict(topic="topic",publishcommand = "publishcommand",icon="icon-play")]
 		)
 		
 	##~~ StartupPlugin mixin
@@ -30,7 +29,7 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 			if "mqtt_unsubscribe" in helpers:
 				self.mqtt_unsubscribe = helpers["mqtt_unsubscribe"]
-
+				
 		self.mqtt_publish("octoprint/plugin/mqttpublish/pub", "OctoPrint-MQTTPublish publishing.")
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
@@ -65,7 +64,7 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 			
 		if command == 'publishcommand':
 			self.mqtt_publish("{topic}".format(**data), "{publishcommand}".format(**data))
-			self._plugin_manager.send_plugin_message(self._identifier, dict(publishcommand=True))
+			self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{topic}".format(**data),publishcommand="{publishcommand}".format(**data)))
 	
 	##~~ Softwareupdate hook
 

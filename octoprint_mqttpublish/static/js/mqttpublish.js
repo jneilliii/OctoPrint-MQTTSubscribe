@@ -11,29 +11,26 @@ $(function() {
         self.loginStateViewModel = parameters[0];
         self.settingsViewModel = parameters[1];
 
-        self.topic = ko.observable();
-		self.publishcommand = ko.observable();
-		self.processing = ko.observable(false);
+        self.topics = ko.observableArray();
+		self.processing = ko.observableArray([]);
 		
 		self.onBeforeBinding = function() {
-			self.topic(self.settingsViewModel.settings.plugins.mqttpublish.topic());
-			self.publishcommand(self.settingsViewModel.settings.plugins.mqttpublish.publishcommand());
+			self.topics(self.settingsViewModel.settings.plugins.mqttpublish.topics());
         }
 		
 		self.onEventSettingsUpdated = function(payload) {
-			self.topic(self.settingsViewModel.settings.plugins.mqttpublish.topic());
-			self.publishcommand(self.settingsViewModel.settings.plugins.mqttpublish.publishcommand());
+			self.topics(self.settingsViewModel.settings.plugins.mqttpublish.topics());
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
 			if (plugin != "mqttpublish") {
 				return;
 			}
-			self.processing(false);
+			self.processing.remove(data.topic+'|'+data.publishcommand);
         };
 		
 		self.mqttpublishClick = function(data) {
-			self.processing(true);
+			self.processing.push(data.topic()+'|'+data.publishcommand());
             $.ajax({
                 url: API_BASEURL + "plugin/mqttpublish",
                 type: "POST",
@@ -44,10 +41,16 @@ $(function() {
 					publishcommand: data.publishcommand()
                 }),
                 contentType: "application/json; charset=UTF-8"
-            }).done(function(){
-				console.log('command "'+data.publishcommand()+'" was sent to "'+data.topic()+'".');
-				});
+            });
         };
+		
+		self.addTopic = function(data) {
+			self.settingsViewModel.settings.plugins.mqttpublish.topics.push({'topic':ko.observable(''),'publishcommand':ko.observable(''),'icon':ko.observable('icon-play')});
+		}
+		
+		self.removeTopic = function(data) {
+			self.settingsViewModel.settings.plugins.mqttpublish.topics.remove(data);
+		}
     }
 
     /* view model class, parameters for constructor, container to bind to
