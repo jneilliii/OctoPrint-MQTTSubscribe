@@ -15,8 +15,17 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			topics = [dict(topic="topic",publishcommand = "publishcommand",icon="icon-play")]
+			topics = [dict(topic="topic",publishcommand = "publishcommand",label="",icon="",confirm=False)],
+			icon = "icon-home",
+			menugroupat = 4
 		)
+		
+	def get_settings_version(self):
+		return 1
+		
+	def on_settings_migrate(self, target, current=None):
+		if current is None or current < self.get_settings_version():
+			self._settings.set(['topics'], self.get_settings_defaults()["topics"])
 		
 	##~~ StartupPlugin mixin
 	
@@ -29,8 +38,11 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 			if "mqtt_unsubscribe" in helpers:
 				self.mqtt_unsubscribe = helpers["mqtt_unsubscribe"]
-				
-		self.mqtt_publish("octoprint/plugin/mqttpublish/pub", "OctoPrint-MQTTPublish publishing.")
+			
+			try:			
+				self.mqtt_publish("octoprint/plugin/mqttpublish/pub", "OctoPrint-MQTTPublish publishing.")
+			except:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(noMQTT=True))
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
 		self.mqtt_publish("octoprint/plugin/mqttpublish/pub", "echo: " + message)
@@ -63,8 +75,11 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 			return make_response("Insufficient rights", 403)
 			
 		if command == 'publishcommand':
-			self.mqtt_publish("{topic}".format(**data), "{publishcommand}".format(**data))
-			self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{topic}".format(**data),publishcommand="{publishcommand}".format(**data)))
+			try:
+				self.mqtt_publish("{topic}".format(**data), "{publishcommand}".format(**data))
+				self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{topic}".format(**data),publishcommand="{publishcommand}".format(**data)))
+			except:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(noMQTT=True))
 	
 	##~~ Softwareupdate hook
 
@@ -74,7 +89,7 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 		# for details.
 		return dict(
 			mqttpublish=dict(
-				displayName="MQTTPublish",
+				displayName="MQTT Publish",
 				displayVersion=self._plugin_version,
 
 				# version check: github repository
@@ -92,7 +107,7 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
-__plugin_name__ = "MQTTPublish"
+__plugin_name__ = "MQTT Publish"
 
 def __plugin_load__():
 	global __plugin_implementation__

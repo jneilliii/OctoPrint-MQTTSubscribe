@@ -1,6 +1,6 @@
 # OctoPrint-MQTTPublish
 
-This plugin simply adds buttons to the navbar of OctoPrint to send configured MQTT commands to the MQTT server configured in the [MQTT Plugin](https://plugins.octoprint.org/plugins/mqtt/).
+This plugin adds a menu to the navbar of OctoPrint to send configured MQTT messages to the MQTT server configured in the [MQTT Plugin](https://plugins.octoprint.org/plugins/mqtt/).
 
 ## Prerequisites
 
@@ -20,6 +20,15 @@ Once the MQTT plugin and this plugin are installed, configure the MQTT plugin fo
 
 ## Settings
 
-- Topic: topic to publish command to.
-- Command: comand to send to topic.
-- Icon: icon class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/).
+![screenshot](settings.png)
+- Topics
+  - Topic: topic to publish message to.
+  - Message: message to send to topic.
+  - Label: label to display on menu.
+  - Icon: icon class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/) to show on button.
+  - Confirm: show a confirmation prompt on sending message.
+- General
+  - Menu Icon: icon class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/) to show in navbar.
+  - Menu Button Grouping: Group buttons by this many and then start a new row in dropdown menu.
+
+![screenshot](navbar.png)
