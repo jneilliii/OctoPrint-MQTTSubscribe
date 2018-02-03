@@ -3,7 +3,7 @@
 	<div class="row-fluid" data-bind="foreach: groupedTopics">
 		<div class="row-fluid">
 			<div class="btn-group" data-bind="foreach: $data" style="padding: 3px 7px;">
-					<button type="button" class="btn btn-default" data-bind="click: $root.mqttpublishClick,  attr: {title: topic}"><span class="icon" style="vertical-align: middle; width: 20px;" aria-hidden="true" data-bind="css: [icon(),($root.processing().includes(topic() + '|' + publishcommand()) ? 'icon-spin' : '')].join(' ')"></span> <!--ko text: label()--><!--/ko--></button>
+					<button type="button" class="btn btn-default" data-bind="click: $root.mqttpublishClick,  attr: {title: topic}"><span class="icon" style="vertical-align: middle; width: 20px;" aria-hidden="true" data-bind="css: [icon(),(($root.processing().indexOf(topic() + '|' + publishcommand()) > -1 ) ? 'icon-spin' : '')].join(' ')"></span> <!--ko text: label()--><!--/ko--></button>
 			</div>
 		</div>
 	</div>
