@@ -20,6 +20,24 @@
 	</div>	
 	<div class="row-fluid"><h4>General</h4></div>
 	<div class="control-group">
+		<label class="control-label">{{ _('@MQTTPublish GCODE') }}</label>
+		<div class="controls">
+			<input type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.mqttpublish.enableGCODE"/>
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label">{{ _('Publish M117') }}</label>
+		<div class="controls">
+			<input type="checkbox" data-bind="checked: settingsViewModel.settings.plugins.mqttpublish.enableM117"/>
+		</div>
+	</div>
+	<div class="control-group" data-bind="visible: settingsViewModel.settings.plugins.mqttpublish.enableM117">
+		<label class="control-label">{{ _('M117 Topic') }}</label>
+		<div class="controls">
+			<input type="text" class="input-text" data-bind="value: settingsViewModel.settings.plugins.mqttpublish.topicM117"/>
+		</div>
+	</div>
+	<div class="control-group">
 		<label class="control-label">{{ _('Menu Icon') }}</label>
         <div class="controls">
 			<input type="text" class="input-text" data-bind="value: settingsViewModel.settings.plugins.mqttpublish.icon">

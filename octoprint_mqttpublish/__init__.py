@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import octoprint.plugin
 from octoprint.server import user_permission
-
+import re
 
 class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
                          octoprint.plugin.AssetPlugin,
@@ -15,9 +15,12 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			topics = [dict(topic="topic",publishcommand = "publishcommand",label="",icon="",confirm=False)],
+			topics = [dict(topic="topic",publishcommand = "publishcommand",label="label",icon="icon-home",confirm=False)],
 			icon = "icon-home",
-			menugroupat = 4
+			menugroupat = 4,
+			enableGCODE = False,
+			enableM117 = False,
+			topicM117 = ""
 		)
 		
 	def get_settings_version(self):
@@ -81,6 +84,24 @@ class MQTTPublishPlugin(octoprint.plugin.SettingsPlugin,
 			except:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(noMQTT=True))
 	
+	##~~ GCODE ProcessingHook
+	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		if cmd.startswith("@MQTTPublish") and self._settings.get(["enableGCODE"]):
+			try:
+				topic = cmd.split()[1]
+				message = cmd.split()[2]
+				self.mqtt_publish(topic, message)
+				return None
+			except:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(noMQTT=True))
+				return
+		
+		if cmd.startswith("M117") and self._settings.get(["enableM117"]):
+			topic = self._settings.get(["topicM117"])
+			message = re.sub(r'^M117\s?', '', cmd)
+			self.mqtt_publish(topic, message)
+			return
+	
 	##~~ Softwareupdate hook
 
 	def get_update_information(self):
@@ -115,6 +136,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
+		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
 

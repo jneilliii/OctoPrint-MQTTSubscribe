@@ -28,7 +28,14 @@ Once the MQTT plugin and this plugin are installed, configure the MQTT plugin fo
   - Icon: icon class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/) to show on button.
   - Confirm: show a confirmation prompt on sending message.
 - General
+  - @MQTTPublish GCODE: If enabled sending **@MQTTPublish topic message** GCODE command will publish the given message to given topic.
+  - Publish M117: If enabled will send any M117 messages to configured M117 Topic field.
   - Menu Icon: icon class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/) to show in navbar.
   - Menu Button Grouping: Group buttons by this many and then start a new row in dropdown menu.
 
 ![screenshot](navbar.png)
+
+## Support My Efforts
+I programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and support me.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jneilliii)

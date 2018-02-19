@@ -15,6 +15,9 @@ $(function() {
 
         self.topics = ko.observableArray();
 		self.icon = ko.observable();
+		self.enableGCODE = ko.observable();
+		self.enableM117 = ko.observable();
+		self.topicM117 = ko.observable();
 		self.processing = ko.observableArray([]);
 		self.selectedTopic = ko.observable();
 		self.menugroupat = ko.observable();
@@ -34,12 +37,18 @@ $(function() {
 		self.onBeforeBinding = function() {
 			self.topics(self.settingsViewModel.settings.plugins.mqttpublish.topics());
 			self.icon(self.settingsViewModel.settings.plugins.mqttpublish.icon());
+			self.enableGCODE(self.settingsViewModel.settings.plugins.mqttpublish.enableGCODE());
+			self.enableM117(self.settingsViewModel.settings.plugins.mqttpublish.enableM117());
+			self.topicM117(self.settingsViewModel.settings.plugins.mqttpublish.topicM117());
 			self.menugroupat(self.settingsViewModel.settings.plugins.mqttpublish.menugroupat());
         }
 		
 		self.onEventSettingsUpdated = function(payload) {
 			self.topics(self.settingsViewModel.settings.plugins.mqttpublish.topics());
 			self.icon(self.settingsViewModel.settings.plugins.mqttpublish.icon());
+			self.enableGCODE(self.settingsViewModel.settings.plugins.mqttpublish.enableGCODE());
+			self.enableM117(self.settingsViewModel.settings.plugins.mqttpublish.enableM117());
+			self.topicM117(self.settingsViewModel.settings.plugins.mqttpublish.topicM117());
 			self.menugroupat(self.settingsViewModel.settings.plugins.mqttpublish.menugroupat());
 		}
 		
