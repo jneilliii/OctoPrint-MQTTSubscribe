@@ -63,13 +63,13 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 					url = "http://%s:%s/api/%s" % (address,port,"{top}".format(**kwargs))
 					if "{type}".format(**kwargs) == "post":
 						r = requests.post(url, data=data, headers=headers)
-						self.mqtt_publish("octoprint/plugins/mqttsubscribe/status/%s" % r.status_code)
-						self.mqtt_publish("octoprint/plugins/mqttsubscribe/response/%s" % r.text)
+						self.mqtt_publish("octoprint/plugins/mqttsubscribe/status/%s" % t["topic"], r.status_code)
+						self.mqtt_publish("octoprint/plugins/mqttsubscribe/response/%s" % t["topic"], r.text)
 						self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{top}".format(**kwargs),message=message,subscribecommand="Status code: %s" % r.status_code))
 					if "{type}".format(**kwargs) == "get":
 						r = requests.get(url, headers=headers)
-						self.mqtt_publish("octoprint/plugins/mqttsubscribe/status/%s" % r.status_code)
-						self.mqtt_publish("octoprint/plugins/mqttsubscribe/response/%s" % r.text)
+						self.mqtt_publish("octoprint/plugins/mqttsubscribe/status/%s" % t["topic"], r.status_code)
+						self.mqtt_publish("octoprint/plugins/mqttsubscribe/response/%s" % t["topic"], r.text)
 						self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{top}".format(**kwargs),message=message,subscribecommand="Response: %s" % r.text))
 
 				except Exception, e:
