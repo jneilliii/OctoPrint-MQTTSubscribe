@@ -8,9 +8,9 @@ import requests
 import json
 
 class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
-                         octoprint.plugin.AssetPlugin,
-                         octoprint.plugin.TemplatePlugin,
-						 octoprint.plugin.StartupPlugin):
+						  octoprint.plugin.AssetPlugin,
+						  octoprint.plugin.TemplatePlugin,
+						  octoprint.plugin.StartupPlugin):
 
 	##~~ SettingsPlugin mixin
 
@@ -34,14 +34,17 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_after_startup(self):
 		helpers = self._plugin_manager.get_helpers("mqtt", "mqtt_publish", "mqtt_subscribe", "mqtt_unsubscribe")
+		subscribed_topics = []
 		if helpers:
 			if "mqtt_publish" in helpers:
 				self.mqtt_publish = helpers["mqtt_publish"]
 			if "mqtt_subscribe" in helpers:
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 				for topic in self._settings.get(["topics"]):
-					self._logger.debug('Subscribing to ' + topic["topic"])
-					self.mqtt_subscribe("octoprint/plugins/mqttsubscribe/" + topic["topic"], self._on_mqtt_subscription, kwargs=dict(top=topic["topic"],cmd=topic["subscribecommand"],type=topic["type"]))
+					if topic["topic"] not in subscribed_topics:
+						subscribed_topics.push(topic["topic"])
+						self._logger.debug('Subscribing to ' + topic["topic"])
+						self.mqtt_subscribe("octoprint/plugins/mqttsubscribe/" + topic["topic"], self._on_mqtt_subscription)
 			if "mqtt_unsubscribe" in helpers:
 				self.mqtt_unsubscribe = helpers["mqtt_unsubscribe"]
 
@@ -51,26 +54,27 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
-		self._logger.debug('Received from ' + topic + '|' + message)
+		self._logger.debug("Received from " + topic + "|" + message)
 
 		for t in self._settings.get(["topics"]):
 			if topic == "octoprint/plugins/mqttsubscribe/" + t["topic"] and message == t["subscribecommand"]:
+				self._logger.debug("Found match " + t["topic"] + "|" + t["subscribecommand"])
 				try:
 					address = "localhost"
 					port = self.port
 					headers = {'Content-type': 'application/json','X-Api-Key': self._settings.get(["api_key"])}
-					data = "{cmd}".format(**kwargs)
-					url = "http://%s:%s/api/%s" % (address,port,"{top}".format(**kwargs))
-					if "{type}".format(**kwargs) == "post":
+					data = t["subscribecommand"]
+					url = "http://%s:%s/api/%s" % (address,port,t["topic"])
+					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
 						self.mqtt_publish("octoprint/plugins/mqttsubscribe/status/%s" % t["topic"], r.status_code)
 						self.mqtt_publish("octoprint/plugins/mqttsubscribe/response/%s" % t["topic"], r.text)
-						self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{top}".format(**kwargs),message=message,subscribecommand="Status code: %s" % r.status_code))
-					if "{type}".format(**kwargs) == "get":
+						self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,subscribecommand="Status code: %s" % r.status_code))
+					if t["type"] == "get":
 						r = requests.get(url, headers=headers)
 						self.mqtt_publish("octoprint/plugins/mqttsubscribe/status/%s" % t["topic"], r.status_code)
 						self.mqtt_publish("octoprint/plugins/mqttsubscribe/response/%s" % t["topic"], r.text)
-						self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{top}".format(**kwargs),message=message,subscribecommand="Response: %s" % r.text))
+						self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,subscribecommand="Response: %s" % r.text))
 
 				except Exception, e:
 					self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
