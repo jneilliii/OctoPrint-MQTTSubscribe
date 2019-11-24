@@ -42,7 +42,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 				for topic in self._settings.get(["topics"]):
 					if topic["topic"] not in subscribed_topics:
-						subscribed_topics.push(topic["topic"])
+						subscribed_topics.append(topic["topic"])
 						self._logger.debug('Subscribing to ' + topic["topic"])
 						self.mqtt_subscribe("octoprint/plugins/mqttsubscribe/" + topic["topic"], self._on_mqtt_subscription)
 			if "mqtt_unsubscribe" in helpers:
