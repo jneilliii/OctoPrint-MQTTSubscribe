@@ -12,6 +12,9 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						  octoprint.plugin.TemplatePlugin,
 						  octoprint.plugin.StartupPlugin):
 
+	def __init__(self):
+		self.subscribed_topics = []
+
 	##~~ SettingsPlugin mixin
 
 	def get_settings_defaults(self):
@@ -27,6 +30,15 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		if current is None or current < self.get_settings_version():
 			self._settings.set(['topics'], self.get_settings_defaults()["topics"])
 
+	def on_settings_save(self, data):
+		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+
+		for topic in self._settings.get(["topics"]):
+			if topic["topic"] not in self.subscribed_topics:
+				self.subscribed_topics.append(topic["topic"])
+				self._logger.debug('Subscribing to ' + topic["topic"])
+				self.mqtt_subscribe("octoprint/plugins/mqttsubscribe/" + topic["topic"], self._on_mqtt_subscription)
+
 	##~~ StartupPlugin mixin
 
 	def on_startup(self, host, port):
@@ -34,15 +46,14 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_after_startup(self):
 		helpers = self._plugin_manager.get_helpers("mqtt", "mqtt_publish", "mqtt_subscribe", "mqtt_unsubscribe")
-		subscribed_topics = []
 		if helpers:
 			if "mqtt_publish" in helpers:
 				self.mqtt_publish = helpers["mqtt_publish"]
 			if "mqtt_subscribe" in helpers:
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 				for topic in self._settings.get(["topics"]):
-					if topic["topic"] not in subscribed_topics:
-						subscribed_topics.append(topic["topic"])
+					if topic["topic"] not in self.subscribed_topics:
+						self.subscribed_topics.append(topic["topic"])
 						self._logger.debug('Subscribing to ' + topic["topic"])
 						self.mqtt_subscribe("octoprint/plugins/mqttsubscribe/" + topic["topic"], self._on_mqtt_subscription)
 			if "mqtt_unsubscribe" in helpers:
