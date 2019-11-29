@@ -16,7 +16,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			topics = [dict(idx="1",topic="topic",subscribecommand = "subscribecommand",type="post")],
+			topics = [dict(topic="topic",subscribecommand = "subscribecommand",type="post")],
 			api_key = ""
 		)
 

@@ -1,18 +1,16 @@
 <form class="form-horizontal">
 	<div class="row-fluid"><h4>Topics</h4></div>
 	<div class="row-fluid">
-				<div class="span1"><h5>{{ _('Index') }}</h5></div>
 				<div class="span3"><h5>{{ _('Topic') }}</h5></div>
 				<div class="span2"><h5>{{ _('Type') }}</h5></div>
-				<div class="span4"><h5>{{ _('Command') }}</h5></div>
+				<div class="span5"><h5>{{ _('Command') }}</h5></div>
 				<div class="span2" style="text-align: center;"><h5><a href="#" class="btn btn-mini icon-plus" data-bind="click: addTopic"></a></h5></div>
 	</div>
 	<div data-bind="foreach: settingsViewModel.settings.plugins.mqttsubscribe.topics">
 		<div class="row-fluid" style="margin-bottom: 5px">
-			<div class="span1"><input type="text" class="span12" data-bind="value: idx"></div>
 			<div class="span3"><input type="text" class="span12" data-bind="value: topic"></div>
 			<div class="span2"><select class="input-block-level" data-bind="value: type"><option value="get">get</option><option value="post">post</option></select></div>
-			<div class="span4"><input type="text" class="span12" data-bind="value: subscribecommand"></div>
+			<div class="span5"><input type="text" class="span12" data-bind="value: subscribecommand"></div>
 			<div class="span2 btn-group" style="text-align: center;"><a href="#" class="btn btn-mini icon-copy" data-bind="click: $root.copyTopic"></a><a href="#" class="btn btn-mini icon-trash" data-bind="click: $root.removeTopic, visible: $root.settingsViewModel.settings.plugins.mqttsubscribe.topics().length > 1"></a></div>
 		</div>
 	</div>	

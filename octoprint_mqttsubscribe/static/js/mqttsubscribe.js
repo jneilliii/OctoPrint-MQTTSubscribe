@@ -47,11 +47,11 @@ $(function() {
 		};
 
 		self.addTopic = function(data) {
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'idx':ko.observable('1'),'topic':ko.observable(''),'subscribecommand':ko.observable(''),'type':ko.observable('post')});
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(''),'subscribecommand':ko.observable(''),'type':ko.observable('post')});
 		}
 
 		self.copyTopic = function(data) {
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'idx':ko.observable(data.idx()),'topic':ko.observable(data.topic()),'subscribecommand':ko.observable(data.subscribecommand()),'type':ko.observable(data.type())});
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(data.topic()),'subscribecommand':ko.observable(data.subscribecommand()),'type':ko.observable(data.type())});
 		}
 
 		self.removeTopic = function(data) {
