@@ -89,7 +89,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Status code: %s" % r.status_code))
 					if t["type"] == "get":
 						r = requests.get(url, headers=headers)
-						self.mqtt_publish(t["topic"], '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
+						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
 						self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Response: %s" % r.text))
 
 				except Exception, e:
