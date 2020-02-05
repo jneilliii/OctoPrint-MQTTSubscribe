@@ -71,6 +71,27 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			except Exception, e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
+        def _substitute (self, s, matches):
+                ls = []
+                isEscaped = False
+                for c in s:
+                        if isEscaped:
+                                if c == '\\':
+                                        ls.append ('\\')
+                                elif c == '0':
+                                        ls.append (json.dumps (matches))
+                                elif c.isdigit ():
+                                        ls.append (json.dumps (matches[int (c) - 1]))
+                                else:
+                                        raise ValueError ('Command field contains invalid escape syntax: \\' + c)
+                                isEscaped = False
+                        else:
+                                if c == '\\':
+                                        isEscaped = True
+                                else:
+                                        ls.append (c)
+                return ''.join (ls)
+
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
 		self._logger.debug("Received from " + topic + "|" + message)
 
@@ -86,8 +107,8 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
                                         expr = jsonpath_rw.parse (extract if extract else '$')
                                         # extract data from message
                                         args = [match.value for match in expr.find (message)]
-                                        # format command
-					data = t["command"] % tuple (args)
+                                        # substitute matches in command
+					data = self._substitute (t["command"], args)
 					url = "http://%s:%s/%s" % (address,port,t["rest"])
 					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
