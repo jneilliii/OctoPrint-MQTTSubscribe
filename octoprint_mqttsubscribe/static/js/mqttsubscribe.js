@@ -14,6 +14,8 @@ $(function() {
 		self.topics = ko.observableArray();
 		self.selectedTopic = ko.observable();
 
+		self.retrieving_key = ko.observable(false);
+
 		self.onBeforeBinding = function() {
 			self.topics(self.settingsViewModel.settings.plugins.mqttsubscribe.topics());
 		}
@@ -45,6 +47,32 @@ $(function() {
 					});
 			}
 		};
+
+		self.getAppKey = function() {
+			self.retrieving_key(true);
+			OctoPrint.plugins.appkeys.authenticate("MQTT Subscribe", self.loginStateViewModel.userMenuText())
+				.done(function(api_key) {
+					self.settingsViewModel.settings.plugins.mqttsubscribe.api_key(api_key);
+					self.retrieving_key(false);
+				})
+				.fail(function() {
+					self.retrieving_key(false);
+					new PNotify({
+						title: 'MQTTSubscribe Error',
+						text: 'There was an error requesting an API key or the request was denied.',
+						type: 'error',
+						hide: true
+						});
+				});
+		}
+
+		self.copyKey = function(data){
+			copyToClipboard(data.settingsViewModel.settings.plugins.mqttsubscribe.api_key());
+		}
+
+		self.removeKey = function(data){
+			self.settingsViewModel.settings.plugins.mqttsubscribe.api_key('');
+		}
 
 		self.addTopic = function(data) {
 			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(''),'subscribecommand':ko.observable(''),'type':ko.observable('post')});
