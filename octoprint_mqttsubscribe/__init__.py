@@ -25,11 +25,25 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		)
 
 	def get_settings_version(self):
-		return 1
+		return 2
 
 	def on_settings_migrate(self, target, current=None):
-		if current is None or current < self.get_settings_version():
+		if current is None or current < 1:
 			self._settings.set(['topics'], self.get_settings_defaults()["topics"])
+		if current == 1:
+			topics_new = []
+			for topic in self._settings.get(['topics']):
+				if not topic.get("extract", False):
+					topic["extract"] = ""
+				if not topic.get("rest", False):
+					topic["rest"] = "/api/"
+				if not topic.get("command", False):
+					topic["command"] = topic["subscribecommand"]
+					topic.pop("subscribecommand", None)
+				if topic.get("idx", False):
+					topic.pop("idx", None)
+				topics_new.append(topic)
+			self._settings.set(["topics"],topics_new)
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
