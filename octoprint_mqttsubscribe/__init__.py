@@ -34,11 +34,17 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
+                to_unsubscribe = list (self.subscribed_topics)
 		for topic in self._settings.get(["topics"]):
-			if topic["topic"] not in self.subscribed_topics:
+			if topic["topic"] in self.subscribed_topics:
+                                to_unsubscribe.remove (topic["topic"])
+                        else:
 				self.subscribed_topics.append(topic["topic"])
 				self._logger.debug('Subscribing to ' + topic["topic"])
 				self.mqtt_subscribe(topic["topic"], self._on_mqtt_subscription)
+                # Unsubscribe previously subscribed topics that are no longer listed
+                for topic in to_unsubscribe:
+                        self.mqtt_unsubscribe (self._on_mqtt_subscription, topic)
 
 	##~~ StartupPlugin mixin
 
