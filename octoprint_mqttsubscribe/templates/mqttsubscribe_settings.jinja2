@@ -1,31 +1,28 @@
 <form class="form-horizontal">
 	<div class="row-fluid"><h4>Topics</h4></div>
 	<div class="row-fluid">
-		<div class="span3"><h5>{{ _('Topic') }}</h5></div>
-		<div class="span2"><h5>{{ _('Type') }}</h5></div>
-		<div class="span5"><h5>{{ _('Command') }}</h5></div>
-		<div class="span2" style="text-align: center;"><h5><a href="#" class="btn btn-mini icon-plus" data-bind="click: addTopic"></a></h5></div>
+				<div class="span2"><h5>{{ _('Topic') }}</h5></div>
+				<div class="span2"><h5>{{ _('Extract') }}</h5></div>
+				<div class="span1"><h5>{{ _('Type') }}</h5></div>
+				<div class="span2"><h5>{{ _('Rest') }}</h5></div>
+				<div class="span3"><h5>{{ _('Command') }}</h5></div>
+				<div class="span2" style="text-align: center;"><h5><a href="#" class="btn btn-mini icon-plus" data-bind="click: addTopic"></a></h5></div>
 	</div>
 	<div data-bind="foreach: settingsViewModel.settings.plugins.mqttsubscribe.topics">
 		<div class="row-fluid" style="margin-bottom: 5px">
-			<div class="span3"><input type="text" class="span12" data-bind="value: topic"></div>
-			<div class="span2"><select class="input-block-level" data-bind="value: type"><option value="get">get</option><option value="post">post</option></select></div>
-			<div class="span5"><input type="text" class="span12" data-bind="value: subscribecommand"></div>
+			<div class="span2"><input type="text" class="span12" data-bind="value: topic"></div>
+			<div class="span2"><input type="text" class="span12" data-bind="value: extract"></div>
+			<div class="span1"><select class="input-block-level" data-bind="value: type"><option value="get">get</option><option value="post">post</option></select></div>
+			<div class="span2"><input type="text" class="span12" data-bind="value: rest"></div>
+			<div class="span3"><input type="text" class="span12" data-bind="value: command"></div>
 			<div class="span2 btn-group" style="text-align: center;"><a href="#" class="btn btn-mini icon-copy" data-bind="click: $root.copyTopic"></a><a href="#" class="btn btn-mini icon-trash" data-bind="click: $root.removeTopic, visible: $root.settingsViewModel.settings.plugins.mqttsubscribe.topics().length > 1"></a></div>
 		</div>
-	</div>
+	</div>	
 	<div class="row-fluid"><h4>General</h4></div>
-	<div class="row-fluid">
-		<div class="span6">
-			<div class="input-block-level input-prepend">        
-				<span class="add-on">API KEY</span>
-				<input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.mqttsubscribe.api_key" disabled>
-			</div>
-		</div>
-		<div class="span2 btn-group">
-			<button class="btn" data-bind="click: copyKey, enable: settingsViewModel.settings.plugins.mqttsubscribe.api_key() !== ''" title="Copy API Key to clipboard" disabled><i class="icon-copy"></i></button>
-			<button class="btn btn-danger" data-bind="click: removeKey, enable: settingsViewModel.settings.plugins.mqttsubscribe.api_key() !== ''" title="Delete API Key" disabled><i class="icon-trash"></i></button>
-			<button class="btn btn-primary" data-bind="click: getAppKey, enable: settingsViewModel.settings.plugins.mqttsubscribe.api_key() == '' && !retrieving_key()" title="Register API Key" disabled><i data-bind="css: {'icon-spin icon-refresh': retrieving_key(),'icon-plus':!retrieving_key()}"></i></button>
-		</div>
+    <div class="control-group">
+		<label class="control-label">{{ _('API KEY') }}</label>
+        <div class="controls">
+			<input type="text" class="input-block-level" data-bind="value: settingsViewModel.settings.plugins.mqttsubscribe.api_key">
+        </div>
 	</div>
 </form>
