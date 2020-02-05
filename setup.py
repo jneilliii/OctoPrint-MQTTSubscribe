@@ -33,7 +33,7 @@ plugin_url = "https://github.com/jneilliii/OctoPrint-MQTTSubscribe"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = []
+plugin_requires = ["jsonpath_rw"]
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point

@@ -32,7 +32,7 @@ $(function() {
 			if(data.topic) {
 				new PNotify({
 					title: 'MQTT Command Received for ' + data.topic,
-					text: 'message: <pre>' + data.message + '</pre>command: <pre>' + data.subscribecommand + '</pre>',
+					text: 'message: <pre>' + data.message + '</pre>',
 					type: 'info',
 					hide: true
 					});
@@ -75,11 +75,11 @@ $(function() {
 		}
 
 		self.addTopic = function(data) {
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(''),'subscribecommand':ko.observable(''),'type':ko.observable('post')});
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(''),'extract':ko.observable(''),'type':ko.observable('post'),'rest':ko.observable(''),'command':ko.observable('')});
 		}
 
 		self.copyTopic = function(data) {
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(data.topic()),'subscribecommand':ko.observable(data.subscribecommand()),'type':ko.observable(data.type())});
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(data.topic()),'extract':ko.observable(data.extract()),'type':ko.observable(data.type()),'rest':ko.observable(data.rest()),'command':ko.observable(data.command())});
 		}
 
 		self.removeTopic = function(data) {
