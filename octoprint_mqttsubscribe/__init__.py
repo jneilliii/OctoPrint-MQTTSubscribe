@@ -120,7 +120,10 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
                                         extract = t["extract"]
                                         expr = jsonpath_rw.parse (extract if extract else '$')
                                         # extract data from message
-                                        args = [match.value for match in expr.find (json.loads (message))]
+                                        if message:
+                                                args = [match.value for match in expr.find (json.loads (message))]
+                                        else:
+                                                args = []
                                         # substitute matches in command
 					data = self._substitute (t["command"], args)
 					url = "http://%s:%s/%s" % (address,port,t["rest"])
