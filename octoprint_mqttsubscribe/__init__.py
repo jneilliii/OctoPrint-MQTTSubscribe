@@ -20,7 +20,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			topics = [dict(topic="",extract="",type="post",rest="/api/",command="")],
+			topics = [],
 			api_key = ""
 		)
 
@@ -48,17 +48,21 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
-                to_unsubscribe = list (self.subscribed_topics)
-		for topic in self._settings.get(["topics"]):
-			if topic["topic"] in self.subscribed_topics:
-                                to_unsubscribe.remove (topic["topic"])
-                        else:
-				self.subscribed_topics.append(topic["topic"])
-				self._logger.debug('Subscribing to ' + topic["topic"])
-				self.mqtt_subscribe(topic["topic"], self._on_mqtt_subscription)
-                # Unsubscribe previously subscribed topics that are no longer listed
-                for topic in to_unsubscribe:
-                        self.mqtt_unsubscribe (self._on_mqtt_subscription, topic)
+		try:
+			to_unsubscribe = list (self.subscribed_topics)
+			for topic in self._settings.get(["topics"]):
+				if topic["topic"] in self.subscribed_topics:
+					to_unsubscribe.remove (topic["topic"])
+				else:
+					self.subscribed_topics.append(topic["topic"])
+					self._logger.debug('Subscribing to ' + topic["topic"])
+					self.mqtt_subscribe(topic["topic"], self._on_mqtt_subscription)
+			# Unsubscribe previously subscribed topics that are no longer listed
+			for topic in to_unsubscribe:
+				self._logger.debug('Unsubscribing from %s' % topic)
+				self.mqtt_unsubscribe (self._on_mqtt_subscription, topic)
+		except Exception, e:
+			self._logger.debug("Exception: %s" % e)
 
 	##~~ StartupPlugin mixin
 
@@ -73,7 +77,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			if "mqtt_subscribe" in helpers:
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 				for topic in self._settings.get(["topics"]):
-					if topic["topic"] not in self.subscribed_topics:
+					if topic.get("topic", "") != "" and topic["topic"] not in self.subscribed_topics:
 						self.subscribed_topics.append(topic["topic"])
 						self._logger.debug('Subscribing to ' + topic["topic"])
 						self.mqtt_subscribe(topic["topic"], self._on_mqtt_subscription)
@@ -85,26 +89,26 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			except Exception, e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
-        def _substitute (self, s, matches):
-                ls = []
-                isEscaped = False
-                for c in s:
-                        if isEscaped:
-                                if c == '\\':
-                                        ls.append ('\\')
-                                elif c == '0':
-                                        ls.append (json.dumps (matches))
-                                elif c.isdigit ():
-                                        ls.append (json.dumps (matches[int (c) - 1]))
-                                else:
-                                        raise ValueError ('Command field contains invalid escape syntax: \\' + c)
-                                isEscaped = False
-                        else:
-                                if c == '\\':
-                                        isEscaped = True
-                                else:
-                                        ls.append (c)
-                return ''.join (ls)
+	def _substitute (self, s, matches):
+		ls = []
+		isEscaped = False
+		for c in s:
+			if isEscaped:
+				if c == '\\':
+					ls.append ('\\')
+				elif c == '0':
+					ls.append (json.dumps (matches))
+				elif c.isdigit ():
+					ls.append (json.dumps (matches[int (c) - 1]))
+				else:
+					raise ValueError ('Command field contains invalid escape syntax: \\' + c)
+				isEscaped = False
+			else:
+				if c == '\\':
+					isEscaped = True
+				else:
+					ls.append (c)
+		return ''.join (ls)
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
 		self._logger.debug("Received from " + topic + "|" + message)
@@ -116,12 +120,15 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 					address = "localhost"
 					port = self.port
 					headers = {'Content-type': 'application/json','X-Api-Key': self._settings.get(["api_key"])}
-                                        # parse message extraction expression
-                                        extract = t["extract"]
-                                        expr = jsonpath_rw.parse (extract if extract else '$')
-                                        # extract data from message
-                                        args = [match.value for match in expr.find (json.loads (message))]
-                                        # substitute matches in command
+					# parse message extraction expression
+					extract = t["extract"]
+					expr = jsonpath_rw.parse (extract if extract else '$')
+					# extract data from message
+					if message:
+						args = [match.value for match in expr.find (json.loads (message))]
+					else:
+						args = ""
+					# substitute matches in command
 					data = self._substitute (t["command"], args)
 					url = "http://%s:%s/%s" % (address,port,t["rest"])
 					if t["type"] == "post":
@@ -140,7 +147,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_assets(self):
 		return dict(
-			js=["js/mqttsubscribe.js"]
+			js=["js/jquery-ui.min.js","js/knockout-sortable.js","js/mqttsubscribe.js"]
 		)
 
 	##~~ TemplatePlugin mixin

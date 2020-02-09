@@ -12,7 +12,7 @@ $(function() {
 		self.settingsViewModel = parameters[1];
 
 		self.topics = ko.observableArray();
-		self.selectedTopic = ko.observable();
+		self.selected_topic = ko.observable();
 
 		self.retrieving_key = ko.observable(false);
 
@@ -66,6 +66,11 @@ $(function() {
 				});
 		}
 
+		self.showEditor = function(data) {
+			self.selected_topic(data);
+			$('#mqttTopicEditor').modal('show');
+		};
+
 		self.copyKey = function(data){
 			copyToClipboard(data.settingsViewModel.settings.plugins.mqttsubscribe.api_key());
 		}
@@ -75,11 +80,25 @@ $(function() {
 		}
 
 		self.addTopic = function(data) {
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(''),'extract':ko.observable(''),'type':ko.observable('post'),'rest':ko.observable(''),'command':ko.observable('')});
+			self.selected_topic({'topic':ko.observable(''),
+								'extract':ko.observable(''),
+								'type':ko.observable('post'),
+								'rest':ko.observable(''),
+								'command':ko.observable('')
+								});
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push(selected_topic());
+			$('#mqttTopicEditor').modal('show');
 		}
 
 		self.copyTopic = function(data) {
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push({'topic':ko.observable(data.topic()),'extract':ko.observable(data.extract()),'type':ko.observable(data.type()),'rest':ko.observable(data.rest()),'command':ko.observable(data.command())});
+			self.selected_topic({'topic':ko.observable(data.topic()),
+							'extract':ko.observable(data.extract()),
+							'type':ko.observable(data.type()),
+							'rest':ko.observable(data.rest()),
+							'command':ko.observable(data.command())
+							});
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push(self.selected_topic());
+			$('#mqttTopicEditor').modal('show');
 		}
 
 		self.removeTopic = function(data) {
