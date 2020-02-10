@@ -127,7 +127,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 					if message:
 						args = [match.value for match in expr.find (json.loads (message))]
 					else:
-						args = ""
+						args = []
 					# substitute matches in command
 					data = self._substitute (t["command"], args)
 					url = "http://%s:%s/%s" % (address,port,t["rest"])
