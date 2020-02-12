@@ -30,7 +30,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 	def on_settings_migrate(self, target, current=None):
 		topics_new = self._settings.get(['topics'])
 		if current is None or current < 1:
-			topics_new = self.get_settings_defaults()["topics"])
+			topics_new = self.get_settings_defaults()["topics"]
 		if current == 1:
 			for topic in topics_new:
 				# Add new fields and remove unused
