@@ -28,24 +28,32 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		return 3
 
 	def on_settings_migrate(self, target, current=None):
+		topics_new = self._settings.get(['topics'])
 		if current is None or current < 1:
-			self._settings.set(['topics'], self.get_settings_defaults()["topics"])
-		if current == 1 or current == 2:
-			topics_new = []
-			for topic in self._settings.get(['topics']):
+			topics_new = self.get_settings_defaults()["topics"])
+		if current == 1:
+			for topic in topics_new:
+				# Add new fields and remove unused
 				if not topic.get("extract", False):
 					topic["extract"] = ""
 				if not topic.get("rest", False):
 					topic["rest"] = "/api/" + topic["topic"]
-				if not topic.get("disable_popup", False):
-					topic["disable_popup"] = False
 				if not topic.get("command", False):
 					topic["command"] = topic["subscribecommand"]
 					topic.pop("subscribecommand", None)
+				if not topic.get("disable_popup", False):
+					topic["disable_popup"] = False
 				if topic.get("idx", False):
 					topic.pop("idx", None)
-				topics_new.append(topic)
-			self._settings.set(["topics"],topics_new)
+
+				# Update topic to remain functional
+				topic["topic"] = "octoprint/plugins/mqttsubscribe/" + topic["topic"]
+		if current == 2:
+			for topic in topics_new:
+				if not topic.get("disable_popup", False):
+					topic["disable_popup"] = False
+
+		self._settings.set(["topics"],topics_new)
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
