@@ -25,18 +25,20 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		)
 
 	def get_settings_version(self):
-		return 2
+		return 3
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 1:
 			self._settings.set(['topics'], self.get_settings_defaults()["topics"])
-		if current == 1:
+		if current == 1 or current == 2:
 			topics_new = []
 			for topic in self._settings.get(['topics']):
 				if not topic.get("extract", False):
 					topic["extract"] = ""
 				if not topic.get("rest", False):
-					topic["rest"] = "/api/"
+					topic["rest"] = "/api/" + topic["topic"]
+				if not topic.get("disable_popup", False):
+					topic["disable_popup"] = False
 				if not topic.get("command", False):
 					topic["command"] = topic["subscribecommand"]
 					topic.pop("subscribecommand", None)
@@ -134,11 +136,13 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
 						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
-						self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Status code: %s" % r.status_code))
+						if not t.get("disable_popup", False):
+							self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Status code: %s" % r.status_code))
 					if t["type"] == "get":
 						r = requests.get(url, headers=headers)
 						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
-						self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Response: %s" % r.text))
+						if not t.get("disable_popup", False):
+							self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Response: %s" % r.text))
 
 				except Exception, e:
 					self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))

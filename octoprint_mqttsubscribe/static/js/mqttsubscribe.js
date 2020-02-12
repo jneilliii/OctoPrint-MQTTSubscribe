@@ -84,7 +84,8 @@ $(function() {
 								'extract':ko.observable(''),
 								'type':ko.observable('post'),
 								'rest':ko.observable(''),
-								'command':ko.observable('')
+								'command':ko.observable(''),
+								'disable_popup':ko.observable(false)
 								});
 			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push(selected_topic());
 			$('#mqttTopicEditor').modal('show');
@@ -95,7 +96,8 @@ $(function() {
 							'extract':ko.observable(data.extract()),
 							'type':ko.observable(data.type()),
 							'rest':ko.observable(data.rest()),
-							'command':ko.observable(data.command())
+							'command':ko.observable(data.command()),
+							'disable_popup':ko.observable(data.disable_popup())
 							});
 			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push(self.selected_topic());
 			$('#mqttTopicEditor').modal('show');

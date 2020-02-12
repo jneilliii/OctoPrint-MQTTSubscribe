@@ -46,6 +46,7 @@
 			<div class="controls"><label class="control-label">{{ _('Type') }}</label><select class="input-block-level" data-bind="value: type"><option value="get">get</option><option value="post">post</option></select></div>
 			<div class="controls"><label class="control-label">{{ _('REST API') }}</label><input type="text" class="input-block-level" data-bind="value: rest"></div>
 			<div class="controls"><label class="control-label">{{ _('REST Parameters') }}</label><textarea class="input-block-level" rows="5" data-bind="value: command"></textarea></div>
+			<div class="controls"><label class="checkbox">{{ _('Disable Pop Up') }}<input type="checkbox" data-bind="checked: disable_popup" title="Don't display the pop-up box on commands received."/></label></div>
 		</div>
 	</div>
 	<div class="modal-footer">
