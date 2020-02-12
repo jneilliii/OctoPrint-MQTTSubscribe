@@ -62,7 +62,8 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			to_unsubscribe = list (self.subscribed_topics)
 			for topic in self._settings.get(["topics"]):
 				if topic["topic"] in self.subscribed_topics:
-					to_unsubscribe.remove (topic["topic"])
+					if topic["topic"] in to_unsubscribe:
+						to_unsubscribe.remove (topic["topic"])
 				else:
 					self.subscribed_topics.append(topic["topic"])
 					self._logger.debug('Subscribing to ' + topic["topic"])
