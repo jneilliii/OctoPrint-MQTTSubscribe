@@ -87,7 +87,7 @@ $(function() {
 								'command':ko.observable(''),
 								'disable_popup':ko.observable(false)
 								});
-			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push(selected_topic());
+			self.settingsViewModel.settings.plugins.mqttsubscribe.topics.push(self.selected_topic());
 			$('#mqttTopicEditor').modal('show');
 		}
 
