@@ -1,6 +1,6 @@
 # OctoPrint-MQTTSubscribe
 
-This plugin will subscribe to configured topics published to the server configured in [MQTT Plugin](https://plugins.octoprint.org/plugins/mqtt/) and will subscribe to configured topics and relay those commands to the OctoPrint REST API.
+This plugin will subscribe to configured topics published to the server configured in the [MQTT Plugin](https://plugins.octoprint.org/plugins/mqtt/) and submit the configured command in settings for that topic to the [OctoPrint REST API](http://docs.octoprint.org/en/master/api/index.html).
 
 ## Prerequisites
 
@@ -16,21 +16,45 @@ Install via the Plugin Manager or manually using this URL:
 
 ## Configuration
 
-Once the MQTT plugin and this plugin are installed, configure the MQTT plugin for connecting to your MQTT server.  Then in this plugin's settings configure the topics/commands you want to subscribe to and your user API Key.
-
-To send a command to OctoPrint publish to the MQTT topic `/octoprint/plugins/mqttsubscribe/<topic>` the json string equivalent to the REST API required for the command. The results of the REST API response will be published back to `/octoprint/plugins/mqttsubscribe/<topic>/status` and `/octoprint/plugins/mqttsubscribe/<topic>/response`. See settings screenshot below for a simple example of getting the current connection status and a disconnect command.
+Once the MQTT plugin and this plugin are installed, configure the MQTT plugin for connecting to your MQTT server.  Then in this plugin's settings configure the topics/commands you want to subscribe to and generate your API key.
 
 ## Settings
 
 ![screenshot](settings.png)
-- Topics
-  - Topic: topic to subscribe to. Should be the same as base OctoPrint REST API path, ie if API is [/api/connection](http://docs.octoprint.org/en/master/api/connection.html#get--api-connection) you use `connection`.
-  - Type: type of API method (post or get)
-  - Message: message to monitor for. Should be the same json string to submit to the [OctoPrint REST API](http://docs.octoprint.org/en/master/api/index.html).
-- General
-  - API Key: User's API key to use to authenticate to the OctoPrint REST API.
 
-## Support My Efforts
-I programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and support me.
+### Topics
+- List of configured topics
+  - Click the plus button to add new topics
+  - Click the pencil button to edit a configured topic
+  - Click the copy button to duplicate a topic
+  - Click the trash icon to delete a topic
+### General
+- API Key: API key to use to authenticate to the [OctoPrint REST API](http://docs.octoprint.org/en/master/api/index.html)
+  - Click the plus button to generate your API key and accept the request
+  - Click the trash icon to clear your API key
+  - Click the copy button to copy the API key to your clipboard
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jneilliii)
+## MQTT Topic Editor
+
+![screenshot](settings_topic_editor.png)
+
+- Topic: MQTT topic to subscribe to for commands
+- JSONPath Extract: JSON Path expression to extract from sent data
+- Type: The type of REST API submission, either post or get.
+- REST API: The [OctoPrint REST API](http://docs.octoprint.org/en/master/api/index.html) command that you want to submit
+- REST Parameters: The `JSON parameters` to submit to the REST API configured above
+
+## Get Help
+
+If you experience issues with this plugin or need assistance please use the issue tracker at the plugin's Homepage linked on the right.
+
+### Additional Plugins
+
+Check out my other plugins [here](https://plugins.octoprint.org/by_author/#jneilliii)
+
+### Support My Efforts
+I, jneilliii, programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and leave me a tip or become a Patron if you find this plugin helpful and want me to continue future development.
+
+[![Patreon](patreon-with-text-new.png)](https://www.patreon.com/jneilliii) [![paypal](paypal-with-text.png)](https://paypal.me/jneilliii)
+
+<small>No paypal.me? Send funds via PayPal to jneilliii&#64;gmail&#46;com</small>
