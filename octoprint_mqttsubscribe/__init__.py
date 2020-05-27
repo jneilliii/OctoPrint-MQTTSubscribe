@@ -72,7 +72,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			for topic in to_unsubscribe:
 				self._logger.debug('Unsubscribing from %s' % topic)
 				self.mqtt_unsubscribe (self._on_mqtt_subscription, topic)
-		except Exception, e:
+		except Exception as e:
 			self._logger.debug("Exception: %s" % e)
 
 	##~~ StartupPlugin mixin
@@ -97,7 +97,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 			try:
 				self.mqtt_publish("octoprint/plugins/mqttsubscribe/debug", "OctoPrint-MQTTSubscribe monitoring.")
-			except Exception, e:
+			except Exception as e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
 	def _substitute (self, s, matches):
@@ -122,7 +122,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		return ''.join (ls)
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
-		self._logger.debug("Received from " + topic + "|" + message)
+		self._logger.debug("Received from %s|%s" % (topic, message))
 
 		for t in self._settings.get(["topics"]):
 			if topic == t["topic"]:
@@ -153,7 +153,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						if not t.get("disable_popup", False):
 							self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Response: %s" % r.text))
 
-				except Exception, e:
+				except Exception as e:
 					self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
 	##~~ AssetPlugin mixin
@@ -191,6 +191,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 
 __plugin_name__ = "MQTT Subscribe"
+__plugin_pythoncompat__ = ">=2.7,<4"
 
 def __plugin_load__():
 	global __plugin_implementation__
