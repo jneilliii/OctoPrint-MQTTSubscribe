@@ -121,10 +121,8 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		# 			ls.append(c)
 		# return ''.join(ls)
 		if s.startswith("{"):
-			command_string = "{" + t["command"] + "}"
-		else:
-			command_string = t["command"]
-		return command_string.format(*matches)
+			s = "{" + s + "}"
+		return s.format(*matches)
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
 		self._logger.debug("Received from %s|%s" % (topic, message))
