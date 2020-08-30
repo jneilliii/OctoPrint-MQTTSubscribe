@@ -146,7 +146,11 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						args = [json.dumps(octoprint.util.to_native_str(message))]
 					# substitute matches in command
 					data = self._substitute(t["command"], args)
-					url = "http://%s:%s/%s" % (address, port, t["rest"])
+					# substitute matches in REST API
+					if t["rest"].startswith("/"):
+						url = self._substitute("http://%s:%s%s" % (address, port, t["rest"]), args)
+					else:
+						url = self._substitute("http://%s:%s/%s" % (address, port, t["rest"]), args)
 					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
 						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s "data" : %s }' % (r.status_code, r.text, data))
