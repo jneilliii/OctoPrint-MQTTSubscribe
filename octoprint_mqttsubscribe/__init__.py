@@ -100,26 +100,31 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			except Exception as e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
-	def _substitute (self, s, matches):
-		ls = []
-		isEscaped = False
-		for c in s:
-			if isEscaped:
-				if c == '\\':
-					ls.append ('\\')
-				elif c == '0':
-					ls.append (json.dumps (matches))
-				elif c.isdigit ():
-					ls.append (json.dumps (matches[int (c) - 1]))
-				else:
-					raise ValueError ('Command field contains invalid escape syntax: \\' + c)
-				isEscaped = False
-			else:
-				if c == '\\':
-					isEscaped = True
-				else:
-					ls.append (c)
-		return ''.join (ls)
+	def _substitute(self, s, matches):
+		# ls = []
+		# isEscaped = False
+		# for c in s:
+		# 	if isEscaped:
+		# 		if c == '\\':
+		# 			ls.append('\\')
+		# 		elif c == '0':
+		# 			ls.append(json.dumps(matches))
+		# 		elif c.isdigit():
+		# 			ls.append(json.dumps(matches[int (c) - 1]))
+		# 		else:
+		# 			raise ValueError('Command field contains invalid escape syntax: \\' + c)
+		# 		isEscaped = False
+		# 	else:
+		# 		if c == '\\':
+		# 			isEscaped = True
+		# 		else:
+		# 			ls.append(c)
+		# return ''.join(ls)
+		regex_opening_bracket = re.compile("{[^\d]", re.MULTILINE)
+		regex_closing_bracket = re.compile("[^\d]}", re.MULTILINE)
+		s = regex_opening_bracket.sub("{{", s)
+		s = regex_closing_bracket.sub("}}", s)
+		return s.format(*matches)
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
 		self._logger.debug("Received from %s|%s" % (topic, message))
@@ -130,21 +135,25 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				try:
 					address = "localhost"
 					port = self.port
-					headers = {'Content-type': 'application/json','X-Api-Key': self._settings.get(["api_key"])}
+					headers = {'Content-type': 'application/json', 'X-Api-Key': self._settings.get(["api_key"])}
 					# parse message extraction expression
 					extract = t["extract"]
 					expr = jsonpath_rw.parse (extract if extract else '$')
 					# extract data from message
-					if message:
-						args = [match.value for match in expr.find (json.loads (message))]
+					if octoprint.util.to_native_str(message).startswith("{"):
+						args = [match.value for match in expr.find(json.loads(message))]
 					else:
-						args = []
+						args = [json.dumps(octoprint.util.to_native_str(message))]
 					# substitute matches in command
-					data = self._substitute (t["command"], args)
-					url = "http://%s:%s/%s" % (address,port,t["rest"])
+					data = self._substitute(t["command"], args)
+					# substitute matches in REST API
+					if t["rest"].startswith("/"):
+						url = self._substitute("http://%s:%s%s" % (address, port, t["rest"]), args)
+					else:
+						url = self._substitute("http://%s:%s/%s" % (address, port, t["rest"]), args)
 					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
-						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
+						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s "data" : %s }' % (r.status_code, r.text, data))
 						if not t.get("disable_popup", False):
 							self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Status code: %s" % r.status_code))
 					if t["type"] == "get":

@@ -25,7 +25,7 @@ $(function() {
 		}
 
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
-			if (plugin != "mqttsubscribe") {
+			if (plugin !== "mqttsubscribe") {
 				return;
 			}
 
