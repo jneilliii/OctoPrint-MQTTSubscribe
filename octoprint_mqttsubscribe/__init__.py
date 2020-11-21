@@ -8,6 +8,7 @@ import requests
 import json
 import jsonpath_rw
 
+
 class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						  octoprint.plugin.AssetPlugin,
 						  octoprint.plugin.TemplatePlugin,
@@ -20,8 +21,8 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			topics = [],
-			api_key = ""
+			topics=[],
+			api_key=""
 		)
 
 	def get_settings_version(self):
@@ -53,17 +54,17 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				if not topic.get("disable_popup", False):
 					topic["disable_popup"] = False
 
-		self._settings.set(["topics"],topics_new)
+		self._settings.set(["topics"], topics_new)
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
 		try:
-			to_unsubscribe = list (self.subscribed_topics)
+			to_unsubscribe = list(self.subscribed_topics)
 			for topic in self._settings.get(["topics"]):
 				if topic["topic"] in self.subscribed_topics:
 					if topic["topic"] in to_unsubscribe:
-						to_unsubscribe.remove (topic["topic"])
+						to_unsubscribe.remove(topic["topic"])
 				else:
 					self.subscribed_topics.append(topic["topic"])
 					self._logger.debug('Subscribing to ' + topic["topic"])
@@ -71,7 +72,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 			# Unsubscribe previously subscribed topics that are no longer listed
 			for topic in to_unsubscribe:
 				self._logger.debug('Unsubscribing from %s' % topic)
-				self.mqtt_unsubscribe (self._on_mqtt_subscription, topic)
+				self.mqtt_unsubscribe(self._on_mqtt_subscription, topic)
 		except Exception as e:
 			self._logger.debug("Exception: %s" % e)
 
@@ -138,7 +139,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 					headers = {'Content-type': 'application/json', 'X-Api-Key': self._settings.get(["api_key"])}
 					# parse message extraction expression
 					extract = t["extract"]
-					expr = jsonpath_rw.parse (extract if extract else '$')
+					expr = jsonpath_rw.parse(extract if extract else '$')
 					# extract data from message
 					if octoprint.util.to_native_str(message).startswith("{"):
 						args = [match.value for match in expr.find(json.loads(message))]
@@ -153,23 +154,30 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						url = self._substitute("http://%s:%s/%s" % (address, port, t["rest"]), args)
 					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
-						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s "data" : %s }' % (r.status_code, r.text, data))
+						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s "data" : %s }' % (
+						r.status_code, r.text, data))
 						if not t.get("disable_popup", False):
-							self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Status code: %s" % r.status_code))
+							self._plugin_manager.send_plugin_message(self._identifier,
+																	 dict(topic=t["topic"], message=message,
+																		  command="Status code: %s" % r.status_code))
 					if t["type"] == "get":
 						r = requests.get(url, headers=headers)
-						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
+						self.mqtt_publish(t["topic"] + "/response",
+										  '{ "status" : %s, "response" : %s }' % (r.status_code, r.text))
 						if not t.get("disable_popup", False):
-							self._plugin_manager.send_plugin_message(self._identifier, dict(topic=t["topic"],message=message,command="Response: %s" % r.text))
+							self._plugin_manager.send_plugin_message(self._identifier,
+																	 dict(topic=t["topic"], message=message,
+																		  command="Response: %s" % r.text))
 
 				except Exception as e:
+					self._logger.error(e)
 					self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
 	##~~ AssetPlugin mixin
 
 	def get_assets(self):
 		return dict(
-			js=["js/jquery-ui.min.js","js/knockout-sortable.js","js/mqttsubscribe.js"]
+			js=["js/jquery-ui.min.js", "js/knockout-sortable.1.2.0.js", "js/mqttsubscribe.js"]
 		)
 
 	##~~ TemplatePlugin mixin
@@ -192,6 +200,16 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				user="jneilliii",
 				repo="OctoPrint-MQTTSubscribe",
 				current=self._plugin_version,
+				stable_branch=dict(
+					name="Stable", branch="master", comittish=["master"]
+				),
+				prerelease_branches=[
+					dict(
+						name="Release Candidate",
+						branch="rc",
+						comittish=["rc", "master"],
+					)
+				],
 
 				# update method: pip
 				pip="https://github.com/jneilliii/OctoPrint-MQTTSubscribe/archive/{target_version}.zip"
@@ -202,6 +220,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 __plugin_name__ = "MQTT Subscribe"
 __plugin_pythoncompat__ = ">=2.7,<4"
 
+
 def __plugin_load__():
 	global __plugin_implementation__
 	__plugin_implementation__ = MQTTSubscribePlugin()
@@ -210,4 +229,3 @@ def __plugin_load__():
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
-
