@@ -44,7 +44,14 @@ Once both plugins are installed configure the topics/commands you want to subscr
 - JSONPath Extract: JSON Path expression to extract from sent data, see [here](https://github.com/jneilliii/OctoPrint-MQTTSubscribe/issues/7#issuecomment-582166178) for an example, leave blank if substitution is not necessary in the `REST Parameters` described below
 - Type: The type of REST API submission, either post or get
 - REST API: The [OctoPrint REST API](http://docs.octoprint.org/en/master/api/index.html) command that you want to submit
-- REST Parameters: The `JSON parameters` to submit to the REST API configured above. Due to the token replacement options used for JSONPath extraction place a space after the first `{` and before the last `}`. For example `{ "command": "connect" }` or put the opening and closing curly brackets on their own line.
+- REST Parameters: The `JSON parameters` to submit to the REST API configured above.
+
+To substitute a portion of the REST parameters or the REST API URL for a parameter from the output of JSONPath Extract, use Python-style string-substitution, like e.g. below:  
+
+JSON the plugin receives via the MQTT topic: `{"mycommand":"disconnect"}`  
+JSONPath Extract: `$.mycommand`  
+Rest Parameters: `{"command":"{0}"}`  
+The output that gets sent to the API: `{"command":"disconnect"}`
 
 ## Most Recent Release
 
