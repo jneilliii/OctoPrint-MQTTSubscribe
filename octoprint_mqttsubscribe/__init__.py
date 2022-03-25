@@ -121,10 +121,9 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		# 		else:
 		# 			ls.append(c)
 		# return ''.join(ls)
-		regex_opening_bracket = re.compile("{[^\d]", re.MULTILINE)
-		regex_closing_bracket = re.compile("[^\d]}", re.MULTILINE)
-		s = regex_opening_bracket.sub("{{", s)
-		s = regex_closing_bracket.sub("}}", s)
+		s=s.replace("{", "{{").replace("}", "}}")
+		regex_double_bracket = re.compile("{{([\d]*)}}", re.MULTILINE)
+		s = regex_double_bracket.sub(r"{\1}", s)
 		return s.format(*matches)
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
