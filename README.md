@@ -55,15 +55,11 @@ The output that gets sent to the API: `{"command":"disconnect"}`
 
 ## Most Recent Release
 
-**[0.1.6](https://github.com/jneilliii/OctoPrint-MQTTSubscribe/releases/tag/0.1.6)** (11/21/2020)
-
-**Added**
-
-* release channels for OctoPrint 1.5.0+ for future rc testing, similar to OctoPrint as described [here](https://community.octoprint.org/t/how-to-use-the-release-channels-to-help-test-release-candidates/402)
+**[0.1.7](https://github.com/jneilliii/OctoPrint-MQTTSubscribe/releases/tag/0.1.7)** (3/26/2022)
 
 **Updated**
 
-* knockout sortable library for OctoPrint 1.5.0 compatibility
+* remove whitespace requirements with opening/closing curly brackets in REST parameters
 
 ### [All Releases](https://github.com/jneilliii/OctoPrint-MQTTSubscribe/releases)
 
