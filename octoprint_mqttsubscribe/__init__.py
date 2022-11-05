@@ -96,7 +96,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				self.mqtt_unsubscribe = helpers["mqtt_unsubscribe"]
 
 			try:
-				self.mqtt_publish("{}plugins/mqttsubscribe/debug", "OctoPrint-MQTTSubscribe monitoring.".format(self._settings.global_get(["plugins", "publish", "baseTopic"])))
+				self.mqtt_publish("{}plugins/mqttsubscribe/debug".format(self._settings.global_get(["plugins", "publish", "baseTopic"])), "OctoPrint-MQTTSubscribe monitoring.")
 			except Exception as e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
