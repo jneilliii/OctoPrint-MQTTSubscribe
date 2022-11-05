@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
-from octoprint.server import user_permission
 import re
 import requests
 import json
@@ -97,31 +96,12 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 				self.mqtt_unsubscribe = helpers["mqtt_unsubscribe"]
 
 			try:
-				self.mqtt_publish("octoprint/plugins/mqttsubscribe/debug", "OctoPrint-MQTTSubscribe monitoring.")
+				self.mqtt_publish("{}plugins/mqttsubscribe/debug", "OctoPrint-MQTTSubscribe monitoring.".format(self._settings.global_get(["plugins", "publish", "baseTopic"])))
 			except Exception as e:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(error=str(e)))
 
 	def _substitute(self, s, matches):
-		# ls = []
-		# isEscaped = False
-		# for c in s:
-		# 	if isEscaped:
-		# 		if c == '\\':
-		# 			ls.append('\\')
-		# 		elif c == '0':
-		# 			ls.append(json.dumps(matches))
-		# 		elif c.isdigit():
-		# 			ls.append(json.dumps(matches[int (c) - 1]))
-		# 		else:
-		# 			raise ValueError('Command field contains invalid escape syntax: \\' + c)
-		# 		isEscaped = False
-		# 	else:
-		# 		if c == '\\':
-		# 			isEscaped = True
-		# 		else:
-		# 			ls.append(c)
-		# return ''.join(ls)
-		s=s.replace("{", "{{").replace("}", "}}")
+		s = s.replace("{", "{{").replace("}", "}}")
 		regex_double_bracket = re.compile("{{([\d]*)}}", re.MULTILINE)
 		s = regex_double_bracket.sub(r"{\1}", s)
 		return s.format(*matches)
@@ -153,7 +133,7 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 						url = self._substitute("http://%s:%s/%s" % (address, port, t["rest"]), args)
 					if t["type"] == "post":
 						r = requests.post(url, data=data, headers=headers)
-						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s "data" : %s }' % (
+						self.mqtt_publish(t["topic"] + "/response", '{ "status" : %s, "response" : %s, "data" : %s }' % (
 						r.status_code, r.text, data))
 						if not t.get("disable_popup", False):
 							self._plugin_manager.send_plugin_message(self._identifier,
