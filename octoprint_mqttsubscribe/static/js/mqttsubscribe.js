@@ -31,8 +31,8 @@ $(function() {
 
 			if(data.topic) {
 				new PNotify({
-					title: 'MQTT Command Received for ' + data.topic,
-					text: 'message: <pre>' + data.message + '</pre>',
+					title: 'MQTT Command Received for ' + _.escape(data.topic),
+					text: 'message: <pre>' + _.escape(data.message) + '</pre>',
 					type: 'info',
 					hide: true
 					});
@@ -41,7 +41,7 @@ $(function() {
 			if(data.error) {
 				new PNotify({
 					title: 'MQTTSubscribe Error',
-					text: '<pre>' + data.error + '</pre>',
+					text: '<pre>' + _.escape(data.error) + '</pre>',
 					type: 'error',
 					hide: false
 					});

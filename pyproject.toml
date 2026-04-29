@@ -1,0 +1,44 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OctoPrint-MQTTSubscribe"
+version = "0.1.9"
+description = "Plugin to send MQTT command from button in navbar."
+authors = [
+    { name = "jneilliii", email = "jneilliii+github@gmail.com" },
+]
+requires-python = ">=3.7,<4"
+dependencies = [
+    "jsonpath_rw",
+]
+dynamic = [
+    "license",
+]
+
+[project.entry-points."octoprint.plugin"]
+mqttsubscribe = "octoprint_mqttsubscribe"
+
+[project.urls]
+Homepage = "https://github.com/jneilliii/OctoPrint-MQTTSubscribe"
+
+[project.optional-dependencies]
+develop = [
+    "go-task-bin",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = [
+    "octoprint_mqttsubscribe",
+    "octoprint_mqttsubscribe.*",
+]

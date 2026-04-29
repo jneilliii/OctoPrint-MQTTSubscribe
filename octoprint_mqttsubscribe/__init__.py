@@ -120,10 +120,10 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 					extract = t["extract"]
 					expr = jsonpath_rw.parse(extract if extract else '$')
 					# extract data from message
-					if octoprint.util.to_native_str(message).startswith("{"):
+					if octoprint.util.to_unicode(message).startswith("{"):
 						args = [match.value for match in expr.find(json.loads(message))]
 					else:
-						args = [json.dumps(octoprint.util.to_native_str(message))]
+						args = [json.dumps(octoprint.util.to_unicode(message))]
 					# substitute matches in command
 					data = self._substitute(t["command"], args)
 					# substitute matches in REST API
@@ -160,6 +160,9 @@ class MQTTSubscribePlugin(octoprint.plugin.SettingsPlugin,
 		)
 
 	##~~ TemplatePlugin mixin
+
+	def is_template_autoescaped(self):
+		return True
 
 	def get_template_configs(self):
 		return [
